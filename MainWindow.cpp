@@ -1,9 +1,9 @@
 /**************************************************************************
  *  MainWindow.cpp
- *  Created 26/5/2016 by Dimitar T. Dimitrov
+ *  Created 31/03/2023 by Dimitar T. Dimitrov
  *  mitakatdd@gmail.com
  *
- *  MIT License
+ *  BSD 2-Clause "Simplified" License
  *
  **************************************************************************/
 #include "MainWindow.h"
