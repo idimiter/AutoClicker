@@ -30,6 +30,8 @@ private:
 	QSystemTrayIcon *trayIcon;
 	QMenu *mainMenu;
 
+	QAction *toggleAction;
+
 	bool isActive = false;
 
 	void closeEvent(QCloseEvent *event);

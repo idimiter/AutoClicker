@@ -4,6 +4,7 @@
 
 ConfigWidget::ConfigWidget(QWidget *parent) : QWidget{parent}
 {
+	resize(640, 480);
 	QHBoxLayout *mainLayout = new QHBoxLayout(this);
 
 	QLabel *titleLabel = new QLabel(QString("Test"));

@@ -44,7 +44,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 	QAction *quitAction = new QAction(tr("Exit"), trayIcon );
 	connect(quitAction, SIGNAL(triggered()), this, SLOT(close()));
 
-	QAction *toggleAction = new QAction(tr("ToggleClicker"), trayIcon );
+	toggleAction = new QAction(tr("Toggle ON"), trayIcon );
 //	quitAction->setShortcut(QKeySequence("CTRL+SHIFT+X"));
 	connect(toggleAction, SIGNAL(triggered()), this, SLOT(toggleClicker()));
 
@@ -57,7 +57,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 	trayIcon->setContextMenu(mainMenu);
 
 	hotkey = new QHotkey(this);
-	hotkey->setShortcut(QKeySequence("Ctrl+Alt+Q"), true);
+	hotkey->setShortcut(QKeySequence("Alt+Shift+S"), true);
 	connect(hotkey, &QHotkey::activated, this, [&](){ toggleClicker(); });
 
 	timer = new QTimer(this);
@@ -81,7 +81,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::menuClicked(QSystemTrayIcon::ActivationReason reason)
 {
-	if (reason == QSystemTrayIcon::ActivationReason::DoubleClick)
+	if (reason == QSystemTrayIcon::ActivationReason::Trigger)
 		configWidget->show();
 }
 
@@ -92,15 +92,17 @@ void MainWindow::showAbout()
 
 void MainWindow::toggleClicker()
 {
-	qDebug() << "Toggle Triggered to " + QString::number(isActive);
-
-	isActive = !isActive;
+	qDebug() << "Toggled to " + QString::number(isActive);
 
 	if (isActive) {
 		timer->stop();
+		toggleAction->setText("Toggle ON");
 	} else {
+		toggleAction->setText("Toggle OFF");
 		timer->start(100);
 	}
+
+	isActive = !isActive;
 }
 
 void MainWindow::updateTimer()
