@@ -3,14 +3,18 @@
 
 #include <QWidget>
 
+class QHotkey;
+class QKeySequence;
 class ConfigWidget : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit ConfigWidget(QWidget *parent = nullptr);
+	explicit ConfigWidget(QHotkey* hotkey, QWidget *parent = nullptr);
+private:
+	QHotkey *hotkey;
 
-signals:
-
+private slots:
+	void hotkeyChanged(const QKeySequence &keySequence);
 };
 
 #endif // CONFIGWIDGET_H

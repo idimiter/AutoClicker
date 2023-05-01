@@ -18,17 +18,13 @@
 #include <QIcon>
 #include <QMessageBox>
 #include <QTimer>
-
 #include <windows.h>
-
 #include <QHotkey>
 
 #include "ConfigWidget.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
-	configWidget = new ConfigWidget();
-
 	userSettings = new QSettings("autoclick_settings");
 //	lastUpdate = userSettings->value("LastUpdate", QDateTime::currentDateTimeUtc()).toDateTime();
 //	qDebug() << "Last updated: " << timeAgo(lastUpdate);
@@ -44,9 +40,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 	QAction *quitAction = new QAction(tr("Exit"), trayIcon );
 	connect(quitAction, SIGNAL(triggered()), this, SLOT(close()));
 
-	toggleAction = new QAction(tr("Toggle ON"), trayIcon );
+	toggleAction = new QAction(tr("Toggle Right click"), trayIcon );
 //	quitAction->setShortcut(QKeySequence("CTRL+SHIFT+X"));
-	connect(toggleAction, SIGNAL(triggered()), this, SLOT(toggleClicker()));
+	connect(toggleAction, SIGNAL(triggered()), this, SLOT(toggleRightClick()));
 
 	mainMenu = new QMenu;
 	mainMenu->addAction(aboutAction);
@@ -59,6 +55,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 	hotkey = new QHotkey(this);
 	hotkey->setShortcut(QKeySequence("Alt+Shift+S"), true);
 	connect(hotkey, &QHotkey::activated, this, [&](){ toggleClicker(); });
+
+	configWidget = new ConfigWidget(hotkey);
 
 	timer = new QTimer(this);
 	connect(timer, SIGNAL(timeout()), this, SLOT(updateTimer()));
@@ -92,21 +90,59 @@ void MainWindow::showAbout()
 
 void MainWindow::toggleClicker()
 {
-	qDebug() << "Toggled to " + QString::number(isActive);
+	isActive = !isActive;
+	qDebug() << "Toggled to" << isActive;
 
 	if (isActive) {
-		timer->stop();
-		toggleAction->setText("Toggle ON");
+		timer->start(rightClick?1000:100);
 	} else {
-		toggleAction->setText("Toggle OFF");
-		timer->start(100);
+		timer->stop();
 	}
-
-	isActive = !isActive;
 }
+
+void MainWindow::toggleRightClick()
+{
+	rightClick = !rightClick;
+
+	if (rightClick)
+	{
+		toggleAction->setText("Toggle Left click");
+	} else {
+		toggleAction->setText("Toggle Right click");
+	}
+}
+
+void MainWindow::SetNumLock(bool state)
+{
+   BYTE keyState[256];
+
+   GetKeyboardState((LPBYTE)&keyState);
+   if( (state && !(keyState[VK_NUMLOCK] & 1)) ||
+	   (!state && (keyState[VK_NUMLOCK] & 1)) )
+   {
+   // Simulate a key press
+	  keybd_event( VK_NUMLOCK,
+				   0x45,
+				   KEYEVENTF_EXTENDEDKEY | 0,
+				   0 );
+
+   // Simulate a key release
+	  keybd_event( VK_NUMLOCK,
+				   0x45,
+				   KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP,
+				   0);
+   }
+}
+
 
 void MainWindow::updateTimer()
 {
-	mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
-	mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+	if (rightClick) {
+		mouse_event(MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0);
+		QThread::msleep(500);
+		mouse_event(MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);
+	} else {
+		mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+		mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+	}
 }

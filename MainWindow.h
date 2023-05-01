@@ -26,26 +26,25 @@ class MainWindow : public QMainWindow
 
 private:
 	QSettings *userSettings;
-
 	QSystemTrayIcon *trayIcon;
 	QMenu *mainMenu;
-
 	QAction *toggleAction;
+	ConfigWidget* configWidget;
+	QHotkey *hotkey;
+	QTimer *timer;
 
 	bool isActive = false;
+	bool rightClick = false;
 
 	void closeEvent(QCloseEvent *event);
+	void SetNumLock(bool state);
 
-	ConfigWidget* configWidget;
-
-	QHotkey *hotkey;
-
-	QTimer *timer;
 
 private slots:
 	void menuClicked(QSystemTrayIcon::ActivationReason reason);
 	void showAbout();
 	void toggleClicker();
+	void toggleRightClick();
 	void updateTimer();
 
 public:
