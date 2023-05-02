@@ -14,6 +14,9 @@ private:
 	QHotkey *hotkey;
 
 private slots:
+	void setHotkey(const QKeySequence &keySequence);
+
+signals:
 	void hotkeyChanged(const QKeySequence &keySequence);
 };
 

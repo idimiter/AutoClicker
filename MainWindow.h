@@ -19,6 +19,7 @@ class QTimer;
 class QSettings;
 class ConfigWidget;
 class QHotkey;
+class QKeySequence;
 
 class MainWindow : public QMainWindow
 {
@@ -38,7 +39,7 @@ private:
 
 	void closeEvent(QCloseEvent *event);
 	void SetNumLock(bool state);
-
+	QKeySequence currentHotkey;
 
 private slots:
 	void menuClicked(QSystemTrayIcon::ActivationReason reason);
@@ -46,6 +47,7 @@ private slots:
 	void toggleClicker();
 	void toggleRightClick();
 	void updateTimer();
+	void hotkeyChanged(const QKeySequence &keySequence);
 
 public:
 	MainWindow(QWidget *parent = 0);

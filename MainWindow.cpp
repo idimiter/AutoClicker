@@ -27,7 +27,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
 	userSettings = new QSettings("autoclick_settings");
 //	lastUpdate = userSettings->value("LastUpdate", QDateTime::currentDateTimeUtc()).toDateTime();
-//	qDebug() << "Last updated: " << timeAgo(lastUpdate);
+	currentHotkey = QKeySequence(userSettings->value("HotKey", "Alt+Shift+S").toString());
+	qDebug() << "Hotkey is: " << currentHotkey.toString();
 
 	trayIcon = new QSystemTrayIcon(QIcon(":/autoclick_icon.png"), this);
 	connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(menuClicked(QSystemTrayIcon::ActivationReason)));
@@ -53,10 +54,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 	trayIcon->setContextMenu(mainMenu);
 
 	hotkey = new QHotkey(this);
-	hotkey->setShortcut(QKeySequence("Alt+Shift+S"), true);
+	hotkey->setShortcut(currentHotkey, true);
 	connect(hotkey, &QHotkey::activated, this, [&](){ toggleClicker(); });
 
 	configWidget = new ConfigWidget(hotkey);
+	connect(configWidget, SIGNAL(hotkeyChanged(const QKeySequence)), this, SLOT(hotkeyChanged(const QKeySequence)));
 
 	timer = new QTimer(this);
 	connect(timer, SIGNAL(timeout()), this, SLOT(updateTimer()));
@@ -145,4 +147,15 @@ void MainWindow::updateTimer()
 		mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
 		mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
 	}
+}
+
+void MainWindow::hotkeyChanged(const QKeySequence &keySequence)
+{
+	if (keySequence.isEmpty())
+		return;
+
+	currentHotkey = keySequence;
+	qDebug() << " Hotkey changed to: " + keySequence.toString();
+	hotkey->setShortcut(currentHotkey, true);
+	userSettings->setValue("HotKey", currentHotkey.toString());
 }

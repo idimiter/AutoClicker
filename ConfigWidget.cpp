@@ -1,5 +1,4 @@
 #include "ConfigWidget.h"
-#include <QHBoxLayout>
 #include <QHotkey>
 #include <QLabel>
 #include <QGridLayout>
@@ -12,26 +11,19 @@ ConfigWidget::ConfigWidget(QHotkey* hotkey, QWidget *parent) : QWidget{parent}
 	this->hotkey = hotkey;
 
 	resize(640, 480);
-	QHBoxLayout *mainLayout = new QHBoxLayout(this);
+	QGridLayout *mainLayout = new QGridLayout(this);
 
 	QLabel *titleLabel = new QLabel(QString("Shortcut"));
 	titleLabel->setMargin(0);
 
-	QKeySequenceEdit *hotkeyEdit = new QKeySequenceEdit();
-	connect(hotkeyEdit, SIGNAL(keySequenceChanged(const QKeySequence)), this, SLOT(hotkeyChanged(const QKeySequence)));
+	QKeySequenceEdit *hotkeyEdit = new QKeySequenceEdit(hotkey->shortcut());
+	connect(hotkeyEdit, SIGNAL(keySequenceChanged(const QKeySequence)), this, SLOT(setHotkey(const QKeySequence)));
 
-	QSpacerItem *spacer = new QSpacerItem(150, 10, QSizePolicy::Expanding);
-
-	mainLayout->addWidget(titleLabel);
-	mainLayout->addWidget(hotkeyEdit);
-	mainLayout->addSpacerItem(spacer);
+	mainLayout->addWidget(titleLabel, 0, 0);
+	mainLayout->addWidget(hotkeyEdit, 0, 1);
 }
 
-void ConfigWidget::hotkeyChanged(const QKeySequence &keySequence)
+void ConfigWidget::setHotkey(const QKeySequence &keySequence)
 {
-	if (keySequence.isEmpty())
-		return;
-
-	qDebug() << " Hotkey changed to: " + keySequence.toString();
-	hotkey->setShortcut(keySequence, true);
+	emit hotkeyChanged(keySequence);
 }
